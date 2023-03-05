@@ -298,6 +298,7 @@ def convert_concat(g, op, block):
 
 def convert_mish(g,op,block):
     """Operator convert for mish."""
+    # print(f"!!!{op}")
     x = g.get_node(op.input("X")[0])
     dtype = infer_type(x).checked_type.dtype
     threshold = op.attr("threshold")
@@ -307,8 +308,17 @@ def convert_mish(g,op,block):
     rhs = _op.log(one+_op.exp(x))* _op.cast((x<=threshold),dtype)
     softplus = lhs + rhs
     out = x*_op.tanh(softplus)
-    # op_func = get_relay_op("multiply")
-    # out = op_func(x,_op.tanh(softplus))
+    g.add_node(op.output("Out")[0],out)
+
+def convert_eye(g,op,block):
+    """Operator convert for eye"""
+    num_rows = op.attr("num_rows")
+
+    num_columns = op.attr("num_columns")
+    dtype = op.attr("dtype")
+    dtype = _convert_dtype_value(dtype)
+    out = np.eye(num_rows,num_columns).astype(dtype)
+    out = _op.const(out,dtype=dtype)
     g.add_node(op.output("Out")[0],out)
 
 def convert_conv2d(g, op, block):
@@ -2235,6 +2245,7 @@ _convert_map = {
     "unsqueeze2": convert_unsqueeze,
     "where_index": convert_where_index,
     "mish": convert_mish,
+    "eye": convert_eye,
 }
 
 
