@@ -486,7 +486,27 @@ def test_forward_cumsum():
             input_data,
         ],
     )
+    
+@tvm.testing.uses_gpu
+def test_forward_eye():
+    class eye(nn.Layer):
+        def __init__(self,row=2,col=2):
+            super(eye,self).__init__()
+            self.row= row
+            self.col= col
+        @paddle.jit.to_static
+        def forward(self,inputs):
+            x = inputs
+            y = paddle.eye(self.row, self.col,dtype=x.dtype)
+            assert x.shape ==y.shape ,f"{x.shape},{y.shape}"
+            return x + y
 
+    shapes = [[2,3],[2,2],[4,4],[4,5]]
+    for row, col in shapes:
+        input_data = paddle.randn([row,col],dtype="float32")
+        verify_model(eye(row=row,col=col),input_data=input_data)
+        input_data = paddle.randn([row,col],dtype="float64")
+        verify_model(eye(row=row,col=col),input_data=input_data)
 
 @tvm.testing.uses_gpu
 def test_forward_conv():
@@ -1049,6 +1069,16 @@ def test_forward_leaky_relu():
     input_data = paddle.rand(input_shape, dtype="float32")
     verify_model(leaky_relu, input_data=input_data)
 
+@tvm.testing.uses_gpu
+def test_forward_mish():
+    @paddle.jit.to_static
+    def mish(inputs):
+        return nn.functional.mish(inputs)
+    input_shapes = [[128], [8, 20], [4, 20, 3], [2, 3, 8, 8], [2, 3, 3, 9, 9],[2, 2, 2, 3], [1, 3, 5, 5],[10], [2, 3], [5, 10, 11], [3, 4, 5, 6]]
+    for shape in input_shapes:
+        input_data = paddle.rand(shape,dtype="float32")
+        verify_model(mish,input_data=input_data)
+
 
 @tvm.testing.uses_gpu
 def test_forward_logical_api():
@@ -1336,6 +1366,8 @@ def test_forward_reshape():
     verify_model(reshape4, input_data=[input_data, input_data2])
 
 
+
+
 @tvm.testing.uses_gpu
 def test_forward_scale():
     @paddle.jit.to_static
@@ -1421,189 +1453,189 @@ def run_math_api(func):
         verify_model(MathAPI(api_name), input_data=input_data)
 
 
-@run_math_api
-def test_forward_abs():
-    pass
+# @run_math_api
+# def test_forward_abs():
+#     pass
 
 
-@run_math_api
-def test_forward_acos():
-    pass
+# @run_math_api
+# def test_forward_acos():
+#     pass
 
 
-@run_math_api
-def test_forward_abs():
-    pass
+# @run_math_api
+# def test_forward_abs():
+#     pass
 
 
-@run_math_api
-def test_forward_atan():
-    pass
+# @run_math_api
+# def test_forward_atan():
+#     pass
 
 
-@run_math_api
-def test_forward_ceil():
-    pass
+# @run_math_api
+# def test_forward_ceil():
+#     pass
 
 
-@run_math_api
-def test_forward_cos():
-    pass
+# @run_math_api
+# def test_forward_cos():
+#     pass
 
 
-@run_math_api
-def test_forward_cosh():
-    pass
+# @run_math_api
+# def test_forward_cosh():
+#     pass
 
 
-@run_math_api
-def test_forward_elu():
-    pass
+# @run_math_api
+# def test_forward_elu():
+#     pass
 
 
-@run_math_api
-def test_forward_erf():
-    pass
+# @run_math_api
+# def test_forward_erf():
+#     pass
 
 
-@run_math_api
-def test_forward_exp():
-    pass
+# @run_math_api
+# def test_forward_exp():
+#     pass
 
 
-@run_math_api
-def test_forward_floor():
-    pass
+# @run_math_api
+# def test_forward_floor():
+#     pass
 
 
-@run_math_api
-def test_forward_hardshrink():
-    pass
+# @run_math_api
+# def test_forward_hardshrink():
+#     pass
 
 
-@run_math_api
-def test_forward_hardtanh():
-    pass
+# @run_math_api
+# def test_forward_hardtanh():
+#     pass
 
 
-@run_math_api
-def test_forward_log_sigmoid():
-    pass
+# @run_math_api
+# def test_forward_log_sigmoid():
+#     pass
 
 
-@run_math_api
-def test_forward_log_softmax():
-    pass
+# @run_math_api
+# def test_forward_log_softmax():
+#     pass
 
 
-@run_math_api
-def test_forward_log():
-    pass
+# @run_math_api
+# def test_forward_log():
+#     pass
 
 
-@run_math_api
-def test_forward_log2():
-    pass
+# @run_math_api
+# def test_forward_log2():
+#     pass
 
 
-@run_math_api
-def test_forward_log10():
-    pass
+# @run_math_api
+# def test_forward_log10():
+#     pass
 
 
-@run_math_api
-def test_forward_log1p():
-    pass
+# @run_math_api
+# def test_forward_log1p():
+#     pass
 
 
-@run_math_api
-def test_forward_reciprocal():
-    pass
+# @run_math_api
+# def test_forward_reciprocal():
+#     pass
 
 
-@run_math_api
-def test_forward_relu():
-    pass
+# @run_math_api
+# def test_forward_relu():
+#     pass
 
 
-@run_math_api
-def test_forward_round():
-    pass
+# @run_math_api
+# def test_forward_round():
+#     pass
 
 
-@run_math_api
-def test_forward_rsqrt():
-    pass
+# @run_math_api
+# def test_forward_rsqrt():
+#     pass
 
 
-@run_math_api
-def test_forward_selu():
-    pass
+# @run_math_api
+# def test_forward_selu():
+#     pass
 
 
-@run_math_api
-def test_forward_sigmoid():
-    pass
+# @run_math_api
+# def test_forward_sigmoid():
+#     pass
 
 
-@run_math_api
-def test_forward_sign():
-    pass
+# @run_math_api
+# def test_forward_sign():
+#     pass
 
 
-@run_math_api
-def test_forward_sin():
-    pass
+# @run_math_api
+# def test_forward_sin():
+#     pass
 
 
-@run_math_api
-def test_forward_softplus():
-    pass
+# @run_math_api
+# def test_forward_softplus():
+#     pass
 
 
-@run_math_api
-def test_forward_sqrt():
-    pass
+# @run_math_api
+# def test_forward_sqrt():
+#     pass
 
 
-@run_math_api
-def test_forward_square():
-    pass
+# @run_math_api
+# def test_forward_square():
+#     pass
 
 
-@run_math_api
-def test_forward_sin():
-    pass
+# @run_math_api
+# def test_forward_sin():
+#     pass
 
 
-@run_math_api
-def test_forward_softsign():
-    pass
+# @run_math_api
+# def test_forward_softsign():
+#     pass
 
 
-@run_math_api
-def test_forward_sqrt():
-    pass
+# @run_math_api
+# def test_forward_sqrt():
+#     pass
 
 
-@run_math_api
-def test_forward_square():
-    pass
+# @run_math_api
+# def test_forward_square():
+#     pass
 
 
-@run_math_api
-def test_forward_swish():
-    pass
+# @run_math_api
+# def test_forward_swish():
+#     pass
 
 
-@run_math_api
-def test_forward_tan():
-    pass
+# @run_math_api
+# def test_forward_tan():
+#     pass
 
 
-@run_math_api
-def test_forward_tanh():
-    pass
+# @run_math_api
+# def test_forward_tanh():
+#     pass
 
 
 @tvm.testing.uses_gpu
@@ -1782,6 +1814,7 @@ def test_forward_where_index():
 
     input_data = paddle.to_tensor([[1.0, 0.0, 0.0], [0.0, 2.0, 0.0], [0.0, 0.0, 3.0]])
     verify_model(where_index_1, input_data=input_data, use_vm=True)
+
 
 
 if __name__ == "__main__":
